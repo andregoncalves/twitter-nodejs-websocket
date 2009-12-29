@@ -1,0 +1,23 @@
+h1. Twitter Node.js WebSocket Example
+
+Quick experiment of going from twitter to the browser, with no polling.
+(Follow up to Ruben Fonseca version with Ruby and AMQP)
+
+It goes something like this:
+
+h2. Requirements
+
+* Node.js
+* Websocket capable browser
+
+h2. How To
+
+1. Install Node.js ()
+2. Execute node server.js
+3. Open index.html file on a HTML5 WebSocket compatible browser.
+
+h2. Libraries used
+
+* Mininal websocket library for node.js
+
+Andre Goncalves
