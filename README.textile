@@ -7,10 +7,12 @@ More info "here":http://bit.ly/71uZNv.
 
 h2. Requirements
 
+
 * Node.js.
 * HTML5 WebSocket capable browser.
 
 h2. How To
+
 
 * Download and install node.js (instructions "here":http://nodejs.org7/#download).
 * Download the project from "github":http://github.com/andregoncalves/twitter-nodejs-websocket.
@@ -19,6 +21,8 @@ h2. How To
 
 h2. Libraries used
 
+
 * "Minimal websocket library":http://github.com/ncr/node.ws.js for node.js from Jacek Becela.
 
-Andre Goncalves (@andregoncalves)
+
+Andre Goncalves ("@andregoncalves":http://twitter.com/andregoncalves)
