@@ -69,7 +69,7 @@ exports.createServer = function (websocketListener) {
         }
       }
 
-      socket.send(nano(handshakeTemplate, {
+     socket.send(nano(handshakeTemplate, {
         resource: matches[0],
         host:     matches[1],
         origin:   matches[2],
@@ -78,7 +78,7 @@ exports.createServer = function (websocketListener) {
       handshaked = true;
       emitter.emit("connect", matches[0]);
     }
-
+    
     socket.addListener("receive", function (data) {
       if(handshaked) {
         handle(data);
