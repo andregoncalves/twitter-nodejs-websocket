@@ -20,8 +20,8 @@ var sys = require("sys"),
     /^Origin: (.+)$/
   ],
   handshakeTemplate = [
-    'HTTP/1.1 101 Web Socket Protocol Handshake', 
-    'Upgrade: WebSocket', 
+    'HTTP/1.1 101 Web Socket Protocol Handshake',
+    'Upgrade: WebSocket',
     'Connection: Upgrade',
     'WebSocket-Origin: {origin}',
     'WebSocket-Location: ws://{host}{resource}',
@@ -51,7 +51,7 @@ exports.createServer = function (websocketListener) {
       var headers = data.split("\r\n");
 
       if(/<policy-file-request.*>/.exec(headers[0])) {
-        socket.send(policy_file);
+        socket.write(policy_file);
         socket.close();
         return;
       }
@@ -69,7 +69,7 @@ exports.createServer = function (websocketListener) {
         }
       }
 
-     socket.send(nano(handshakeTemplate, {
+     socket.write(nano(handshakeTemplate, {
         resource: matches[0],
         host:     matches[1],
         origin:   matches[2],
@@ -78,29 +78,29 @@ exports.createServer = function (websocketListener) {
       handshaked = true;
       emitter.emit("connect", matches[0]);
     }
-    
-    socket.addListener("receive", function (data) {
+
+    socket.addListener("data", function (data) {
       if(handshaked) {
         handle(data);
       } else {
         handshake(data);
       }
-    }).addListener("eof", function () {
+    }).addListener("end", function () {
       socket.close();
     }).addListener("close", function () {
       if (handshaked) { // don't emit close from policy-requests
         emitter.emit("close");
       }
     });
-    
-    emitter.send = function (data) {
-      socket.send('\u0000' + data + '\uffff');
+
+    emitter.write = function (data) {
+      socket.write('\u0000' + data + '\uffff');
     }
-    
+
     emitter.close = function () {
       socket.close();
     }
-    
+
     websocketListener(emitter); // emits: "connect", "receive", "close", provides: send(data), close()
   });
 }
