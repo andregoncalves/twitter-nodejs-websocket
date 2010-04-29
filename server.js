@@ -33,7 +33,7 @@ request.addListener('response', function (response) {
     });
   });
 });
-request.close();
+request.end();
 
 // Websocket TCP server
 ws.createServer(function (websocket) {
