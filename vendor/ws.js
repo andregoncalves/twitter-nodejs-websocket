@@ -1,6 +1,8 @@
-// Based on:
-// http://github.com/alexanderte/websocket-server-node.js
-// http://github.com/Guille/node.websocket.js
+// Github: http://github.com/ncr/node.ws.js
+// Compatible with node v0.1.91
+// Author: Jacek Becela
+// License: MIT
+// Based on: http://github.com/Guille/node.websocket.js
 
 function nano(template, data) {
   return template.replace(/\{([\w\.]*)}/g, function (str, key) {
@@ -11,7 +13,7 @@ function nano(template, data) {
 }
 
 var sys = require("sys"),
-  tcp = require("net"),
+  net = require("net"),
   headerExpressions = [
     /^GET (\/[^\s]*) HTTP\/1\.1$/,
     /^Upgrade: WebSocket$/,
@@ -20,8 +22,8 @@ var sys = require("sys"),
     /^Origin: (.+)$/
   ],
   handshakeTemplate = [
-    'HTTP/1.1 101 Web Socket Protocol Handshake',
-    'Upgrade: WebSocket',
+    'HTTP/1.1 101 Web Socket Protocol Handshake', 
+    'Upgrade: WebSocket', 
     'Connection: Upgrade',
     'WebSocket-Origin: {origin}',
     'WebSocket-Location: ws://{host}{resource}',
@@ -31,20 +33,32 @@ var sys = require("sys"),
   policy_file = '<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>';
 
 exports.createServer = function (websocketListener) {
-  return tcp.createServer(function (socket) {
+  return net.createServer(function (socket) {
     socket.setTimeout(0);
     socket.setNoDelay(true);
     socket.setEncoding("utf8");
 
     var emitter = new process.EventEmitter(),
-      handshaked = false;
-
+      handshaked = false,
+      buffer = "";
+      
     function handle(data) {
-      if(data[0] == "\u0000" && data[data.length - 1] == "\ufffd") {
-        emitter.emit("receive", data.substr(1, data.length - 2));
-      } else {
-        socket.close();
+      buffer += data;
+      
+      var chunks = buffer.split("\ufffd"),
+        count = chunks.length - 1; // last is "" or a partial packet
+        
+      for(var i = 0; i < count; i++) {
+        var chunk = chunks[i];
+        if(chunk[0] == "\u0000") {
+          emitter.emit("data", chunk.slice(1));
+        } else {
+          socket.end();
+          return;
+        }
       }
+      
+      buffer = chunks[count];
     }
 
     function handshake(data) {
@@ -52,7 +66,7 @@ exports.createServer = function (websocketListener) {
 
       if(/<policy-file-request.*>/.exec(headers[0])) {
         socket.write(policy_file);
-        socket.close();
+        socket.end();
         return;
       }
 
@@ -65,11 +79,12 @@ exports.createServer = function (websocketListener) {
             matches.push(match[1]);
           }
         } else {
-          socket.close();
+          socket.end();
+          return;
         }
       }
 
-     socket.write(nano(handshakeTemplate, {
+      socket.write(nano(handshakeTemplate, {
         resource: matches[0],
         host:     matches[1],
         origin:   matches[2],
@@ -86,21 +101,31 @@ exports.createServer = function (websocketListener) {
         handshake(data);
       }
     }).addListener("end", function () {
-      socket.close();
+      socket.end();
     }).addListener("close", function () {
       if (handshaked) { // don't emit close from policy-requests
         emitter.emit("close");
       }
     });
 
+    emitter.remoteAddress = socket.remoteAddress;
+    
     emitter.write = function (data) {
-      socket.write('\u0000' + data + '\uffff');
+      try {
+        socket.write('\u0000', 'binary');
+        socket.write(data, 'utf8');
+        socket.write('\uffff', 'binary');
+      } catch(e) { 
+        // Socket not open for writing, 
+        // should get "close" event just before.
+        socket.end();
+      }
     }
-
-    emitter.close = function () {
-      socket.close();
+    
+    emitter.end = function () {
+      socket.end();
     }
-
-    websocketListener(emitter); // emits: "connect", "receive", "close", provides: send(data), close()
+    
+    websocketListener(emitter); // emits: "connect", "data", "close", provides: write(data), end()
   });
 }
