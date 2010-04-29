@@ -12,7 +12,7 @@ h2. Requirements:
 
 h2. How To:
 
-* Download and install node.js (instructions "here":http://nodejs.org7/#download).
+* Download and install node.js (instructions "here":http://nodejs.org/#download).
 * Download the project from "github":http://github.com/andregoncalves/twitter-nodejs-websocket.
 * Start the server: @node server.js <twitter_username> <twitter_password> <optional_keyword>@.
 * Open @index.html@ with a WebSocket compatible browser (Chrome or Webkit nightly).
