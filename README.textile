@@ -1,4 +1,4 @@
-h1. Twitter Node.js WebSocket Example
+h1. Twitter Node.js WebSockets Example
 
 Quick experiment of direct streaming from twitter to the browser, with no polling, using Node.js.
 (Follow up to Ruben Fonseca "version":http://github.com/rubenfonseca/twitter-amqp-websocket-example with Ruby and AMQP)
@@ -8,7 +8,7 @@ More info "here":http://bit.ly/71uZNv.
 h2. Requirements:
 
 * Node.js.
-* HTML5 WebSocket capable browser.
+* HTML5 WebSockets capable browser.
 
 h2. How To:
 
