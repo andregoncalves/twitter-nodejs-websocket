@@ -25,16 +25,29 @@ var clients = [];
 var twitter = http.createClient(80, "stream.twitter.com");
 var request = twitter.request("GET", "/1/statuses/filter.json?track=" + KEYWORD, headers);
 
+
+var message = "";
+
 request.addListener('response', function (response) {
   response.setEncoding("utf8");
   
   response.addListener("data", function (chunk) {
-    // Send response to all connected clients
-    
-    clients.each(function(c) {
-      c.write(chunk);
+
+		message += chunk;
+
+		var newlineIndex = message.indexOf('\r');
+		// response should not be sent until message includes '\r'.
+		//		 Look at the section titled "Parsing Responses" in Twitter's documentation.
+    	if (newlineIndex !== -1) {
+        	var tweet = message.slice(0, newlineIndex);
+        	clients.forEach(function(client) {
+					// Send response to all connected clients
+					client.write(tweet);
+			});
+        }
+        message = message.slice(newlineIndex + 1);
     });
-  });
+
 });
 request.end();
 
