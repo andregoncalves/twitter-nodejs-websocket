@@ -9,9 +9,9 @@
       alert("Sorry, the build of your browser does not support WebSockets. Please use latest Chrome or Webkit nightly");
       return;
     }
-    
+
     ws = new WebSocket("ws://localhost:8080/");
-    ws.onmessage = function(evt) { 
+    ws.onmessage = function(evt) {
       data = eval("(" + evt.data + ")");
       var p = $("<div class='tweet' style='display:none'><div class='content'><a class='main-screenname' href='http://www.twitter.com/" + data.user.screen_name + "/status/" + data.id + "' target='_blank'>" + data.user.screen_name + "</a> " + data.text + "</div></div>");
       if($('#tweets div.tweet').size() > 15) {

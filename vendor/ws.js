@@ -38,8 +38,8 @@ var sys  = require("sys"),
     'origin': /^(.+)$/,
   },
   handshakeTemplate75 = [
-    'HTTP/1.1 101 Web Socket Protocol Handshake', 
-    'Upgrade: WebSocket', 
+    'HTTP/1.1 101 Web Socket Protocol Handshake',
+    'Upgrade: WebSocket',
     'Connection: Upgrade',
     'WebSocket-Origin: {origin}',
     'WebSocket-Location: ws://{host}{resource}',
@@ -70,13 +70,13 @@ exports.createServer = function (websocketListener, options) {
     var emitter = new process.EventEmitter(),
       handshaked = false,
       buffer = "";
-      
+
     function handle(data) {
       buffer += data;
-      
+
       var chunks = buffer.split("\ufffd"),
         count = chunks.length - 1; // last is "" or a partial packet
-        
+
       for(var i = 0; i < count; i++) {
         var chunk = chunks[i];
         if(chunk[0] == "\u0000") {
@@ -86,7 +86,7 @@ exports.createServer = function (websocketListener, options) {
           return;
         }
       }
-      
+
       buffer = chunks[count];
     }
 
@@ -150,7 +150,7 @@ exports.createServer = function (websocketListener, options) {
         var hash = crypto.createHash("md5")
         , key1 = pack(parseInt(numkey1/spaces1))
         , key2 = pack(parseInt(numkey2/spaces2));
-        
+
         hash.update(key1);
         hash.update(key2);
         hash.update(upgradeHead);
@@ -196,23 +196,23 @@ exports.createServer = function (websocketListener, options) {
     });
 
     emitter.remoteAddress = socket.remoteAddress;
-    
+
     emitter.write = function (data) {
       try {
         socket.write('\u0000', 'binary');
         socket.write(data, 'utf8');
         socket.write('\uffff', 'binary');
-      } catch(e) { 
-        // Socket not open for writing, 
+      } catch(e) {
+        // Socket not open for writing,
         // should get "close" event just before.
         socket.end();
       }
     }
-    
+
     emitter.end = function () {
       socket.end();
     }
-    
+
     websocketListener(emitter); // emits: "connect", "data", "close", provides: write(data), end()
   });
 }

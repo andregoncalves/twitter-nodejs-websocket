@@ -30,7 +30,7 @@ var message = "";
 
 request.addListener('response', function (response) {
   response.setEncoding("utf8");
-  
+
   response.addListener("data", function (chunk) {
 
 		message += chunk;
